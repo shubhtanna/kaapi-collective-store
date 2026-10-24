@@ -18,8 +18,8 @@ export async function writeCart(lines: CartLine[]) {
   ;(await cookies()).set(COOKIE, JSON.stringify(lines), { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 30 })
 }
 
-export async function cartSummary() {
-  const items = (await readCart()).map((l) => {
+export async function cartSummary(lines?: CartLine[]) {
+  const items = (lines ?? (await readCart())).map((l) => {
     const product = getById(l.id)!
     return { ...l, product, lineTotal: product.price * l.qty }
   })

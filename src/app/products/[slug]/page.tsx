@@ -24,8 +24,28 @@ export default async function ProductPage({ params }: PageProps<'/products/[slug
   const related = inCategory(p.category).filter((x) => x.id !== p.id).slice(0, 4)
   const isCoffee = p.category === 'beans'
 
+  // Machine-readable product data for AI agents and search engines. "<" is escaped so
+  // text inside the product data can never close the script tag.
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: p.name,
+    description: p.description,
+    image: `/products/${p.slug}`,
+    sku: p.id,
+    url: `/products/${p.slug}`,
+    offers: {
+      '@type': 'Offer',
+      price: p.price,
+      priceCurrency: 'INR',
+      availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: `/products/${p.slug}`,
+    },
+  }).replaceAll('<', '\\u003c')
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <section className="wrap pdp">
         <div className="pdp-art"><Bag p={p} size="big" /></div>
         <div>
