@@ -42,6 +42,19 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   if (!/^\d{6}$/.test(f.pincode)) errors.pincode = 'Please enter a 6-digit PIN code.'
   if (Object.keys(errors).length) return { errors }
 
+  // A shared checkout link (?items=…) carries the cart in the URL; rebuild the cookie
+  // cart from it here, where cookies may be written, so the order matches the link.
+  const raw = formData.get('items')
+  const shared = String(Array.isArray(raw) ? raw[0] : raw ?? '')
+  if (shared) {
+    const wanted = new Map<string, number>()
+    for (const part of shared.split(',')) {
+      const [id, qty] = part.split(':')
+      const n = Math.max(1, Math.min(10, Number(qty) || 1))
+      if (getById(id ?? '') && n > 0) wanted.set(id, n)
+    }
+    if (wanted.size) await writeCart([...wanted].map(([id, qty]) => ({ id, grind: getById(id)!.category === 'filter-coffee' ? 'South Indian filter' : 'Not applicable', qty })))
+  }
   const cart = await cartSummary()
   if (!cart.count) redirect('/cart')
   const number = 'KC' + Date.now().toString(36).toUpperCase().slice(-6)

@@ -43,7 +43,7 @@ export default async function CartPage() {
             <p><span>Shipping</span><span>{cart.shipping ? inr(cart.shipping) : 'Free'}</span></p>
             <p className="total"><span>Total</span><span>{inr(cart.total)}</span></p>
             {cart.shipping > 0 && <p className="note">Add {inr(cart.toFree)} more for free shipping.</p>}
-            <Link className="btn wide" href="/checkout">Checkout</Link>
+            <Link className="btn wide" href={`/checkout?items=${cart.items.map((i) => `${i.id}:${i.qty}`).join(',')}`}>Checkout</Link>
           </aside>
         </div>
       )}

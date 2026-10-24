@@ -3,11 +3,12 @@
 import { useActionState } from 'react'
 import { placeOrder, type CheckoutState } from '@/app/actions'
 
-export default function CheckoutForm({ total }: { total: string }) {
+export default function CheckoutForm({ total, items }: { total: string; items?: string }) {
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {})
   const e = state.errors ?? {}
   return (
     <form action={action} className="co-form" noValidate>
+      {items && <input type="hidden" name="items" value={items} />}
       <h3>Delivery details</h3>
       <label>Full name<input name="name" autoComplete="name" />{e.name && <small>{e.name}</small>}</label>
       <div className="two">
